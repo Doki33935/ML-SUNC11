@@ -11,9 +11,12 @@ def prod_non_zero_diag(x):
     """
 
     product = 1
-    for index in range(min(len(x), len(x[0]) if x else 0)):
+    diagonal_length = min(len(x), len(x[0]))
+
+    for index in range(diagonal_length):
         if x[index][index] != 0:
             product *= x[index][index]
+
     return product
 
 
@@ -28,15 +31,7 @@ def are_multisets_equal(x, y):
     Not vectorized implementation.
     """
 
-    if len(x) != len(y):
-        return False
-
-    unmatched = list(y)
-    for value in x:
-        if value not in unmatched:
-            return False
-        unmatched.remove(value)
-    return True
+    return sorted(x) == sorted(y)
 
 
 def max_after_zero(x):
@@ -50,14 +45,13 @@ def max_after_zero(x):
     Not vectorized implementation.
     """
 
-    values_after_zero = []
+    result = []
+
     for index in range(1, len(x)):
         if x[index - 1] == 0:
-            values_after_zero.append(x[index])
+            result.append(x[index])
 
-    if not values_after_zero:
-        raise ValueError("В массиве нет элементов, перед которыми стоит ноль")
-    return max(values_after_zero)
+    return max(result)
 
 
 def convert_image(img, coefs):
@@ -72,16 +66,22 @@ def convert_image(img, coefs):
     Not vectorized implementation.
     """
 
-    result = []
+    new_image = []
+
     for row in img:
-        result_row = []
+        new_row = []
+
         for pixel in row:
-            weighted_sum = 0
+            new_pixel = 0
+
             for channel, coef in zip(pixel, coefs):
-                weighted_sum += channel * coef
-            result_row.append(weighted_sum)
-        result.append(result_row)
-    return result
+                new_pixel += channel * coef
+
+            new_row.append(new_pixel)
+
+        new_image.append(new_row)
+
+    return new_image
 
 
 def run_length_encoding(x):
@@ -95,9 +95,6 @@ def run_length_encoding(x):
     Not vectorized implementation.
     """
 
-    if len(x) == 0:
-        return [], []
-
     elements = [x[0]]
     counters = [1]
     for value in x[1:]:
@@ -106,6 +103,7 @@ def run_length_encoding(x):
         else:
             elements.append(value)
             counters.append(1)
+
     return elements, counters
 
 
@@ -120,13 +118,19 @@ def pairwise_distance(x, y):
     Not vectorized implementation.
     """
 
-    distances = []
-    for x_object in x:
+    result = []
+
+    for first_object in x:
         row = []
-        for y_object in y:
-            squared_distance = 0
-            for x_coordinate, y_coordinate in zip(x_object, y_object):
-                squared_distance += (x_coordinate - y_coordinate) ** 2
-            row.append(squared_distance ** 0.5)
-        distances.append(row)
-    return distances
+
+        for second_object in y:
+            distance = 0
+
+            for first, second in zip(first_object, second_object):
+                distance += (first - second) ** 2
+
+            row.append(distance ** 0.5)
+
+        result.append(row)
+
+    return result

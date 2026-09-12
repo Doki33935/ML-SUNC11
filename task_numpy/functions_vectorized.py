@@ -14,7 +14,8 @@ def prod_non_zero_diag(x):
     """
 
     diagonal = np.diag(x)
-    return np.prod(diagonal[diagonal != 0])
+    non_zero = diagonal[diagonal != 0]
+    return np.prod(non_zero)
 
 
 def are_multisets_equal(x, y):
@@ -42,10 +43,10 @@ def max_after_zero(x):
     Vectorized implementation.
     """
 
-    values_after_zero = x[1:][x[:-1] == 0]
-    if values_after_zero.size == 0:
-        raise ValueError("В массиве нет элементов, перед которыми стоит ноль")
-    return np.max(values_after_zero)
+    result = x[1:][x[:-1] == 0]
+
+
+    return np.max(result)
 
 
 def convert_image(img, coefs):
@@ -60,7 +61,7 @@ def convert_image(img, coefs):
     Vectorized implementation.
     """
 
-    return np.sum(img * coefs, axis=2)
+    return np.dot(img, coefs)
 
 
 def run_length_encoding(x):
@@ -74,12 +75,13 @@ def run_length_encoding(x):
     Vectorized implementation.
     """
 
-    if x.size == 0:
-        return np.array([], dtype=x.dtype), np.array([], dtype=int)
 
-    run_starts = np.r_[0, np.flatnonzero(x[1:] != x[:-1]) + 1]
-    elements = x[run_starts]
-    counters = np.diff(np.r_[run_starts, x.size])
+    changes = np.where(x[1:] != x[:-1])[0] + 1
+    starts = np.concatenate(([0], changes))
+
+    elements = x[starts]
+    counters = np.diff(np.append(starts, len(x)))
+
     return elements, counters
 
 
@@ -94,5 +96,5 @@ def pairwise_distance(x, y):
     Vctorized implementation.
     """
 
-    differences = x[:, np.newaxis, :] - y[np.newaxis, :, :]
-    return np.sqrt(np.sum(differences ** 2, axis=2))
+    differences = x[:, None, :] - y[None, :, :]
+    return np.linalg.norm(differences, axis=2)
